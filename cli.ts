@@ -31,8 +31,8 @@ const shortCutMapping: Record<string, string> = {
 
 const argv = process.argv;
 const fileInputs: string[] = [];
-for (let i = 2; i < argv.length; i++) {
-  const arg = argv[i];
+for (let i = 2; i < argv.length; ) {
+  const arg = argv[i++];
   if (arg.startsWith("-")) {
     const firstChar = arg.charAt(1);
     let key: string;

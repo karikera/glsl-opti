@@ -112,7 +112,8 @@ if (fileInputs.length >= 2) {
 
 let target = ShaderTarget.OpenGL;
 if (options.target !== null) {
-  switch (options.target.toLowerCase()) {
+  const targetstr = options.target.toLowerCase();
+  switch (targetstr) {
     case "opengl":
       target = ShaderTarget.OpenGL;
       break;
@@ -122,6 +123,9 @@ if (options.target !== null) {
     case "opengles3":
       target = ShaderTarget.OpenGLES30;
       break;
+    default:
+      console.error(`invalid target ${targetstr}.`);
+      process.exit(-1);
   }
 }
 

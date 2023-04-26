@@ -12,10 +12,10 @@
       "program": "${workspaceFolder}\\cli.js",
       "outFiles": ["${workspaceFolder}/**/*.js"],
       "args": [
-        "-topengles30",
-        "sample/sample.vert",
+        "-topengles2",
+        "sample/sample.frag",
         "-o",
-        "sample/sample.vert.h"
+        "sample/sample.frag.h"
       ],
       "preLaunchTask": "${defaultBuildTask}"
     }

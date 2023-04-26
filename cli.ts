@@ -10,6 +10,7 @@ interface Options {
   fs: boolean;
   vs: boolean;
   version: boolean;
+  cheader: string | null;
   [key: string]: string | null | boolean;
 }
 
@@ -19,6 +20,8 @@ const options: Options = {
   fs: false,
   vs: false,
   version: false,
+  cheader: null,
+  help: false,
 };
 
 const shortCutMapping: Record<string, string> = {
@@ -81,16 +84,32 @@ if (options.version) {
   process.exit(-1);
 }
 
-if (fileInputs.length === 0) {
-  console.error(`no inputs.`);
+if (options.help) {
+  const shortcut: Record<string, string> = {};
+  for (const key in shortCutMapping) {
+    shortcut[shortCutMapping[key]] = key;
+  }
+
+  for (const key in options) {
+    const sc = shortcut[key];
+    let out = "";
+    if (sc !== undefined) {
+      out += `-${sc} or `;
+    }
+    out += `--${key}`;
+    if (options[key] === null) {
+      out += " value";
+    }
+    console.log(out);
+  }
   process.exit(-1);
 }
+
 if (fileInputs.length >= 2) {
   console.error(`multiple inputs are not supported.`);
   process.exit(-1);
 }
 
-const input = fileInputs[0];
 let target = ShaderTarget.OpenGL;
 if (options.target !== null) {
   switch (options.target.toLowerCase()) {
@@ -106,13 +125,9 @@ if (options.target !== null) {
   }
 }
 
-const parsed = path.parse(input);
-if (options.output === null) {
-  options.output = path.join(parsed.dir, parsed.name + ".min" + parsed.ext);
-}
-
+const input: string | undefined = fileInputs[0];
 if (options.fs === false && options.vs === false) {
-  switch (parsed.ext.toLowerCase()) {
+  switch (input !== undefined && path.parse(input).ext.toLowerCase()) {
     case ".vert":
       options.vs = true;
       break;
@@ -125,9 +140,64 @@ if (options.fs === false && options.vs === false) {
   }
 }
 
+abstract class AbstractWriter {
+  abstract write(content: any): void;
+  abstract end(): void;
+}
+
+class FileWriter extends AbstractWriter {
+  constructor(private readonly fd: number) {
+    super();
+  }
+
+  write(content: any): void {
+    fs.writeSync(this.fd, content);
+  }
+  end() {
+    fs.closeSync(this.fd);
+  }
+}
+
+class ConsoleWriter {
+  write(content: any): void {
+    process.stdout.write(content);
+  }
+  end(): void {}
+}
+
 (async () => {
   await optimizeGLSL.load();
-  const source = fs.readFileSync(input, "utf8");
-  const res = optimizeGLSL(source, target, options.vs);
-  fs.writeFileSync(options.output!, res);
+  const source = fs.readFileSync(input === undefined ? 0 : input);
+  const res = optimizeGLSL.buffer(source, target, options.vs);
+  let writer: AbstractWriter;
+
+  if (options.output === null) {
+    writer = new ConsoleWriter();
+  } else {
+    writer = new FileWriter(fs.openSync(options.output, "w"));
+
+    if (options.cheader === null) {
+      const output = path.parse(options.output);
+      const outputExt = output.ext.toLowerCase();
+      if (
+        outputExt === ".h" ||
+        outputExt === ".hpp" ||
+        outputExt === "h++" ||
+        outputExt === "hh"
+      ) {
+        options.cheader = "g_" + output.name.replace(/[./\\]/g, "_");
+      }
+    }
+  }
+
+  if (options.cheader) {
+    writer.write(
+      `#define TEXT(x) #x\nconst char ${options.cheader}[] = TEXT(\n`
+    );
+    writer.write(res);
+    writer.write(");\n#undef TEXT\n");
+  } else {
+    writer.write(res);
+  }
+  writer.end();
 })().catch(console.error);

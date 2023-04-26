@@ -11,7 +11,8 @@
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}\\cli.js",
       "outFiles": ["${workspaceFolder}/**/*.js"],
-      "args": ["-topengles30", "sample/sample.vert"]
+      "args": ["-topengles30", "sample/sample.vert", "-osample/sample.vert.h"],
+      "preLaunchTask": "${defaultBuildTask}"
     }
   ]
 }

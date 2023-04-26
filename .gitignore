@@ -2,4 +2,4 @@
 *.js.map
 *.d.ts
 node_modules
-sample.min.vert
+/sample/sample.vert.h

@@ -1,4 +1,6 @@
 interface GLSLOptimizerModule {
+  HEAPU8: Uint8Array;
+
   then(cb: (v: GLSLOptimizerModule) => void): GLSLOptimizerModule;
 
   ccall(
@@ -33,6 +35,11 @@ exports.optimizeGLSL = Module.cwrap("optimize_glsl", "string", [
   "number",
   "boolean",
 ]);
+const optimizeGLSLRaw = Module.cwrap("optimize_glsl", "number", [
+  "array",
+  "number",
+  "boolean",
+]);
 
 const modulePromise = new Promise<void>((resolve) => {
   Module.then((v) => {
@@ -42,5 +49,16 @@ const modulePromise = new Promise<void>((resolve) => {
 export namespace optimizeGLSL {
   export function load(): Promise<void> {
     return modulePromise;
+  }
+  export function buffer(
+    source: Uint8Array,
+    target: ShaderTarget,
+    isVertexShader: boolean
+  ): Uint8Array {
+    const ptr = optimizeGLSLRaw(source, target, isVertexShader);
+    const buf = Module.HEAPU8;
+    let nullterm = ptr;
+    for (; buf[nullterm] !== 0; nullterm++) {}
+    return buf.subarray(ptr, nullterm);
   }
 }

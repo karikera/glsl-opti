@@ -169,8 +169,16 @@ class ConsoleWriter {
   await optimizeGLSL.load();
   const source = fs.readFileSync(input === undefined ? 0 : input);
   const res = optimizeGLSL.buffer(source, target, options.vs);
-  let writer: AbstractWriter;
+  if (
+    Buffer.from(res.buffer, res.byteOffset, 6).toString("utf8") === "Error:"
+  ) {
+    console.error(
+      Buffer.from(res.buffer, res.byteOffset, res.length).toString("utf8")
+    );
+    process.exit(-1);
+  }
 
+  let writer: AbstractWriter;
   if (options.output === null) {
     writer = new ConsoleWriter();
   } else {
@@ -200,4 +208,7 @@ class ConsoleWriter {
     writer.write(res);
   }
   writer.end();
-})().catch(console.error);
+})().catch((err) => {
+  console.error(err.stack);
+  process.exit(-1);
+});

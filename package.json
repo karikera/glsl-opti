@@ -1,6 +1,6 @@
 {
   "name": "glsl-opti",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,11 @@
     "url": "https://github.com/karikera/glsl-opti.git"
   },
   "bin": "cli.js",
-  "keywords": [],
+  "keywords": [
+    "glsl",
+    "minifier",
+    "cli"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {

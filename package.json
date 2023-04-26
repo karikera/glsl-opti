@@ -1,0 +1,21 @@
+{
+  "name": "glsl-optimizer-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": "cli.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "glsl-optimizer-js": "^0.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.1",
+    "prettier": "^2.8.8",
+    "typescript": "^5.0.4"
+  }
+}

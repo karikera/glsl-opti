@@ -204,10 +204,10 @@ class ConsoleWriter {
 
   if (options.cheader) {
     writer.write(
-      `#define TEXT(x) #x\nconst char ${options.cheader}[] = TEXT(\n`
+      `#define __to_text_(x) #x\nconst char ${options.cheader}[] = __to_text_(\n`
     );
     writer.write(res);
-    writer.write(");\n#undef TEXT\n");
+    writer.write(");\n#undef __to_text_\n");
   } else {
     writer.write(res);
   }
